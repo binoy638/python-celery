@@ -1,0 +1,28 @@
+version: "3.7"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: python-celery
+    # ports:
+    #   - "1883:1883"
+    command: celery -A main worker --pool=solo --loglevel=info
+    network_mode: host
+    depends_on:
+      - redis
+  redis:
+    image: redis:6.2.6-alpine
+    container_name: python-celery-redis
+    restart: always
+    logging:
+      driver: "none"
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+    volumes: 
+      - cache:/data
+
+volumes:
+  cache:
+    driver: local
